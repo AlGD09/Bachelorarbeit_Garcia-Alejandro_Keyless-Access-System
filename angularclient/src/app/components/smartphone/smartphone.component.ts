@@ -4,6 +4,7 @@ import { Smartphone } from '../../model/smartphone';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { User } from '../../model/user';
 
 @Component({
   selector: 'app-smartphone',
@@ -15,17 +16,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class SmartphoneComponent {
   // Formularfelder Registrierung
   regDeviceId = '';
-  regUserName = '';
-  regSecretHash = '';
+  regName = '';
 
   // Formularfelder Auth
   authToken: string | null = null;
   selectedSmartphone: Smartphone | null = null;
-
-  //Formular Hash
-  getHash: boolean = false;
-  selectedSmartphone1: Smartphone | null = null;
-  lastHash: string | null = null;
 
   // Liste
   phones: Smartphone[] = [];
@@ -42,7 +37,24 @@ export class SmartphoneComponent {
   loadList(): void {
     this.loading = true;
     this.smartphoneService.getAll().subscribe({
-      next: data => { this.phones = data; this.loading = false; },
+      next: data => {
+        this.phones = data;
+
+        this.phones.forEach(phone => {
+          if (phone.id) {
+            this.smartphoneService.getAssignedUsers(phone.id).subscribe({
+              next: (users: User[]) => {
+                phone.users = users ?? [];
+              },
+              error: () => {
+                phone.users = []; // Kein Problem, wenn keine Zuordnung existiert
+              }
+            });
+          }
+        });
+
+        this.loading = false;
+      },
       error: err => { this.errorMsg = err.message || 'Fehler beim Laden'; this.loading = false; }
     });
   }
@@ -50,13 +62,15 @@ export class SmartphoneComponent {
   register(): void {
     const body: Smartphone = {
       deviceId: this.regDeviceId.trim(),
-      userName: this.regUserName.trim(),
-      secretHash: this.regSecretHash.trim()
+      Name: this.regName.trim(),
     };
-    if (!body.deviceId || !body.userName || !body.secretHash) { alert('Bitte alle Felder ausfüllen'); return; }
+    if (!body.deviceId || !body.Name) { alert('Bitte alle Felder ausfüllen'); return; }
 
     this.smartphoneService.registerSmartphone(body).subscribe({
-      next: _ => { this.clearRegForm(); this.loadList(); alert('Registrierung erfolgreich'); setTimeout(() => this.router.navigate(['/home']), 1200);},
+      next: smart => {
+        this.clearRegForm(); this.loadList(); alert('Registrierung erfolgreich');
+        this.router.navigate(['/smartphone/assign'], { queryParams: { id: smart.id, name: smart.Name } });
+      },
       error: err => { this.errorMsg = err.error?.message || 'Registrierung fehlgeschlagen'; }
     });
   }
@@ -67,38 +81,31 @@ export class SmartphoneComponent {
             return;
     }
 
-    const { deviceId, userName, secretHash } = this.selectedSmartphone;
+    const { deviceId } = this.selectedSmartphone;
+    if (!this.selectedSmartphone.users || this.selectedSmartphone.users.length === 0) {
+        alert('Kein Benutzer für dieses Smartphone gefunden.');
+        return;
+    }
 
-    this.smartphoneService.requestToken(deviceId, userName, secretHash).subscribe({
+    const user = this.selectedSmartphone.users[0];
+    const { username, secretHash } = user;
+
+
+    this.smartphoneService.requestToken(deviceId, username, secretHash).subscribe({
       next: res => { this.authToken = res.auth_token; alert('Token erhalten'); this.clearAuthForm(); },
       error: _ => { this.authToken = null; alert('Auth fehlgeschlagen'); }
     });
   }
 
 
-  requestHash(): void {
-    if (!this.selectedSmartphone1) {
-      alert('Bitte ein Smartphone auswählen.');
-      return;
-    }
-
-    this.lastHash = this.selectedSmartphone1.secretHash;
-    this.getHash = true;
-
-    this.clearHashForm();
-  }
-
   clearRegForm(): void {
-    this.regDeviceId = ''; this.regUserName = ''; this.regSecretHash = '';
+    this.regDeviceId = ''; this.regName = '';
   }
 
   clearAuthForm(): void {
-      this.selectedSmartphone = null;
-    }
+    this.selectedSmartphone = null;
+  }
 
-  clearHashForm(): void {
-    this.selectedSmartphone1 = null;
-    }
 
 
 }

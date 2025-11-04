@@ -2,14 +2,12 @@ package com.keyless.rexroth.dto;
 
 public class SmartphoneRegistrationDTO {
     private String deviceId;
-    private String username;
-    private String secretHash;
+    private String name;
 
     public SmartphoneRegistrationDTO() {}
 
-    public SmartphoneRegistrationDTO(String deviceId, String secretHash) {
+    public SmartphoneRegistrationDTO(String deviceId) {
         this.deviceId = deviceId;
-        this.secretHash = secretHash;
     }
 
     public String getDeviceId() {
@@ -18,13 +16,7 @@ public class SmartphoneRegistrationDTO {
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
     }
-    public String getSecretHash() {
-        return secretHash;
-    }
-    public void setSecretHash(String secretHash) {
-        this.secretHash = secretHash;
-    }
-    public String getUserName() { return username; }
-    public void setUserName(String userName) { this.username = userName; }
+    public String getName() { return name; }
+    public void setName(String Name) { this.name = Name; }
 
 }

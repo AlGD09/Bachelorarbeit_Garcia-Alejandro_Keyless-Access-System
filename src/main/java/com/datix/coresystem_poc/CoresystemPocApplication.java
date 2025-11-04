@@ -1,7 +1,9 @@
 package com.datix.coresystem_poc;
 
 import com.keyless.rexroth.entity.Smartphone;
+import com.keyless.rexroth.entity.User;
 import com.keyless.rexroth.repository.SmartphoneRepository;
+import com.keyless.rexroth.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,12 +42,28 @@ public class CoresystemPocApplication {
             if (repo.count() == 0) {
                 Smartphone s = new Smartphone();
                 s.setDeviceId("9e4a6c41b203d8a7");
-                s.setSecretHash("cc03e747a6afbbcbf8be7668acfebee5");
-                s.setUserName("Alejandro");
+                s.setName("Generic");
+                //s.setSecretHash("cc03e747a6afbbcbf8be7668acfebee5");
+                //s.setUserName("Alejandro");
                 s.setStatus("inactive");
                 repo.save(s);
 
                 System.out.println("✅ Smartphone-Datensatz in H2 gespeichert.");
+            }
+        };
+    }
+
+    @Bean
+    CommandLineRunner initUsers(UserRepository repo) {
+        return args -> {
+            if (repo.count() == 0) {
+                User u = new User();
+                u.setUsername("Standard");
+                u.setEmail("standard-employee@boschrexroth.de");
+                u.setSecretHash("e4d909c290d0fb1ca068ffaddf22cbd0");
+                repo.save(u);
+
+                System.out.println("✅ User-Datensatz in H2 gespeichert.");
             }
         };
     }

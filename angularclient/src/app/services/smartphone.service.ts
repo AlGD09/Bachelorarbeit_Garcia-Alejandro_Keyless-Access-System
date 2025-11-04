@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Smartphone } from '../model/smartphone';
+import { User } from '../model/user';
 import { Observable } from 'rxjs/internal/Observable';
 
 
@@ -22,6 +23,14 @@ registerSmartphone(phone: Smartphone): Observable<any> {
 // Liste anzeigen
 getAll(): Observable<Smartphone[]> {
   return this.http.get<Smartphone[]>(`${this.baseUrl}/list`);
+}
+
+assignUsers(smartphoneId: number, userIds: number[]): Observable<Smartphone> {
+    return this.http.post<Smartphone>(`${this.baseUrl}/assign/users`, { smartphoneId, userIds });
+}
+
+getAssignedUsers(id: number): Observable<User[]> {
+  return this.http.get<User[]>(`${this.baseUrl}/${id}/users`);
 }
 
 // Auth-Token anfordern (Login)

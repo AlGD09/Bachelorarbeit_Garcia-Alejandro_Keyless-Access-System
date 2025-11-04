@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SmartphoneService } from '../../services/smartphone.service';
 import { RcuService } from '../../services/rcu.service';
+import { UserService } from '../../services/user.service';
 import { Smartphone } from '../../model/smartphone';
 import { Rcu } from '../../model/rcu';
+import { User } from '../../model/user';
 
 @Component({
   selector: 'app-home',
@@ -18,8 +20,10 @@ export class HomeComponent {
   // RCUs
   rcus: Rcu[] = [];
 
-  assignments: { rid: number; rcuId: string; rcuName: string; smartphones: Smartphone[] }[] = [];
+  users: User[] = [];
 
+  assignments: { rid: number; rcuId: string; rcuName: string; smartphones: Smartphone[] }[] = [];
+  zuweisungen: { sid: number; smartphoneId: string; smartphoneName: string; users: User[] }[] = [];
 
   // Status
   loading = false;
@@ -28,6 +32,7 @@ export class HomeComponent {
   constructor(
     private smartphoneService: SmartphoneService,
     private rcuService: RcuService,
+    private userService: UserService,
     private router: Router
   ) {
     this.loadData();
@@ -37,10 +42,47 @@ export class HomeComponent {
   loadData(): void {
     this.loading = true;
 
+    // Users abrufen
+    this.userService.getAllUsers().subscribe({
+      next: (data: User[]) => {
+        this.users = data;
+        this.loading = false;
+      },
+      error: (err: any) => {
+        this.errorMsg = err.message || 'Fehler beim Laden der Users';
+        this.loading = false;
+      }
+    });
+
     // Smartphones abrufen
     this.smartphoneService.getAll().subscribe({
       next: (data: Smartphone[]) => {
         this.smartphones = data;
+        this.zuweisungen = [];
+        this.smartphones.forEach(smartphone => {
+          if (smartphone.id) {
+            this.smartphoneService.getAssignedUsers(smartphone.id).subscribe({
+              next: (users: User[]) => {
+                // Prüfen, ob gültiges Smartphone-Objekt vorhanden ist
+                const zugewiesen = users ?? [];
+                this.zuweisungen.push({
+                  sid: smartphone.id ?? 0,
+                  smartphoneId: smartphone.deviceId || '–',
+                  smartphoneName: smartphone.Name || '–',
+                  users: zugewiesen
+                });
+              },
+              error: () => {
+                this.zuweisungen.push({
+                  sid: smartphone.id ?? 0,
+                  smartphoneId: smartphone.deviceId || '–',
+                  smartphoneName: smartphone.Name || '–',
+                  users: []
+                });
+              }
+            });
+          }
+        });
         this.loading = false;
       },
       error: (err: any) => {
@@ -87,7 +129,7 @@ export class HomeComponent {
   }
 
   deleteRcu(id: number): void {
-    if (confirm('Willst du diese RCU wirklich löschen?')) {
+    if (confirm('Möchten Sie diese RCU wirklich löschen?')) {
       this.rcuService.deleteRcu(id).subscribe({
         next: () => {
           this.loadData(); // Nach dem Löschen neu laden
@@ -100,7 +142,7 @@ export class HomeComponent {
   }
 
   deleteSmartphone(id: number): void {
-    if (confirm('Willst du dieses Smartphone wirklich löschen?')) {
+    if (confirm('Möchten Sie dieses Smartphone wirklich löschen?')) {
       this.smartphoneService.deleteSmartphone(id).subscribe({
         next: () => {
           this.loadData(); // Nach dem Löschen neu laden
@@ -112,8 +154,25 @@ export class HomeComponent {
     }
   }
 
+  deleteUser(id: number): void {
+    if (confirm('Möchten Sie diesen User wirklich löschen?')) {
+      this.userService.deleteUser(id).subscribe({
+        next: () => {
+          this.loadData(); // Nach dem Löschen neu laden
+        },
+        error: () => {
+          this.errorMsg = 'Fehler beim Löschen des Users.';
+        }
+      });
+    }
+  }
+
   openAssignPage(id: number, name: string): void{
     this.router.navigate(['/maschine/assign'], { queryParams: { id: id, name: name } });
+  }
+
+  openAssignSmartphone(id: number, name: string): void{
+    this.router.navigate(['/smartphone/assign'], { queryParams: { id: id, name: name } });
   }
 
   removeSmartphone(rcuId: string, smartphoneId: number): void{
@@ -123,6 +182,19 @@ export class HomeComponent {
       },
       error: () => {
         this.errorMsg = 'Fehler beim Entfernen der Smartphonezuweisung.';
+      }
+
+    });
+
+  }
+
+  removeUser(smartphoneId: string, userId: number): void{
+    this.userService.removeUser(smartphoneId, userId).subscribe({
+      next: () => {
+        this.loadData(); // Nach dem Löschen neu laden
+      },
+      error: () => {
+        this.errorMsg = 'Fehler beim Entfernen der Userzuweisung.';
       }
 
     });

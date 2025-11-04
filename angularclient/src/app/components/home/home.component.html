@@ -18,6 +18,46 @@
     </p>
   </div>
 
+  <!-- Users -->
+  <section class="bg-white shadow-sm rounded-2xl p-6 border border-gray-100 mt-8 w-full">
+    <h2 class="text-xl font-medium text-gray-800 mb-4">
+      Users
+    </h2>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left border-t border-gray-200 min-w-[650px]">
+        <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
+        <tr>
+          <th class="px-4 py-2">ID</th>
+          <th class="px-4 py-2">User Name</th>
+          <th class="px-4 py-2">Email</th>
+          <th class="px-4 py-2">Aktionen</th>
+        </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100">
+        <tr
+          *ngFor="let u of users"
+          class="hover:bg-blue-50 transition text-gray-700 align-middle"
+        >
+          <td class="px-4 py-2 whitespace-nowrap">{{ u.id }}</td>
+          <td class="px-4 py-2">{{ u.username }}</td>
+          <td class="px-4 py-2 whitespace-nowrap">{{ u.email }}</td>
+          <td class="px-4 py-2 text-right">
+            <button
+              (click)="deleteUser(u.id!)"
+              class="text-red-600 hover:text-red-800 font-medium whitespace-nowrap px-2 py-1 rounded transition"
+            >
+              Löschen
+            </button>
+          </td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
   <div class="grid md:grid-cols-2 gap-8">
     <!-- Smartphones -->
     <section class="bg-white shadow-sm rounded-2xl p-6 border border-gray-100">
@@ -28,7 +68,6 @@
           <tr>
             <th class="px-4 py-2">ID</th>
             <th class="px-4 py-2">Device ID</th>
-            <th class="px-4 py-2">User</th>
             <th class="px-4 py-2">Status</th>
             <th class="px-4 py-2">Last Seen</th>
             <th class="px-4 py-2">Aktionen</th>
@@ -38,7 +77,6 @@
           <tr *ngFor="let s of smartphones" class="hover:bg-blue-50 transition">
             <td class="px-4 py-2">{{ s.id }}</td>
             <td class="px-4 py-2">{{ s.deviceId }}</td>
-            <td class="px-4 py-2">{{ s.userName }}</td>
             <td class="px-4 py-2">{{ s.status }}</td>
             <td class="px-4 py-2">{{ s.lastSeen || '—' }}</td>
             <td class="px-4 py-2">
@@ -136,7 +174,7 @@
               <ul class="list-inside space-y-1">
                 <li *ngFor="let s of a.smartphones">
                   <div class="flex items-center gap-2">
-                  {{ s.deviceId }} - {{ s.userName }}
+                  {{ s.deviceId }} - {{ s.Name }}
                   <button
                     class="px-3 py-1 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
                     (click)="removeSmartphone(a.rcuId!, s.id!)"
@@ -157,6 +195,67 @@
             <button
               class="px-3 py-1 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
               (click)="openAssignPage(a.rid!, a.rcuName!)">
+              Assign
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Zuweisungen Users-->
+  <section class="bg-white shadow-sm rounded-2xl p-6 border border-gray-100 mt-8 w-full">
+    <h2 class="text-xl font-medium text-gray-800 mb-4">
+      Zuweisungen
+    </h2>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left border-t border-gray-200 min-w-[650px]">
+        <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
+        <tr>
+          <th class="px-4 py-2">Smartphone Name</th>
+          <th class="px-4 py-2">Smartphone-ID</th>
+          <th class="px-4 py-2">Zugewiesene Users</th>
+        </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100">
+        <tr
+          *ngFor="let z of zuweisungen"
+          class="hover:bg-blue-50 transition text-gray-700 align-top"
+        >
+          <td class="px-4 py-2">{{ z.smartphoneName }}</td>
+          <td class="px-4 py-2 whitespace-nowrap font-medium">
+            {{ z.smartphoneId }}
+          </td>
+          <td class="px-4 py-2">
+
+            <ng-container *ngIf="z.users.length; else none">
+              <ul class="list-inside space-y-1">
+                <li *ngFor="let u of z.users">
+                  <div class="flex items-center gap-2">
+                    {{ u.username }} - {{ u.email }}
+                    <button
+                      class="px-3 py-1 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+                      (click)="removeUser(z.smartphoneId!, u.id!)"
+                    >
+                      Unassign
+                    </button>
+                  </div>
+                </li>
+              </ul>
+            </ng-container>
+
+            <ng-template #none>
+              <span class="text-gray-500 italic">Keine Users zugewiesen</span>
+            </ng-template>
+          </td>
+
+          <td class="px-4 py-2 text-right">
+            <button
+              class="px-3 py-1 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+              (click)="openAssignSmartphone(z.sid!, z.smartphoneName!)">
               Assign
             </button>
           </td>

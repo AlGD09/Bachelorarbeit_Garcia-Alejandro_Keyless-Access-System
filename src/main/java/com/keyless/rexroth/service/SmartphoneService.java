@@ -1,8 +1,10 @@
 package com.keyless.rexroth.service;
 
 import com.keyless.rexroth.entity.RCU;
+import com.keyless.rexroth.entity.User;
 import com.keyless.rexroth.repository.RCURepository;
 import com.keyless.rexroth.repository.SmartphoneRepository;
+import com.keyless.rexroth.repository.UserRepository;
 import com.keyless.rexroth.entity.Smartphone;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ public class SmartphoneService {
 
     @Autowired
     private RCURepository rcuRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // Feste Testgeräte (deviceId → secretHash)
     //private final Map<String, String> registeredDevices = new HashMap<>();
@@ -39,19 +44,31 @@ public class SmartphoneService {
         //if (storedHash == null || !storedHash.equals(secretHash)) return null;
 
         Smartphone device = smartphoneRepository.findByDeviceId(deviceId);
-
         if (device == null) {
-            System.out.println("❌ Gerät nicht gefunden: " + deviceId);
+            System.out.println("Gerät nicht gefunden: " + deviceId);
+            return null;
+        }
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            System.out.println("User nicht gefunden: " + username);
             return null;
         }
 
-        if (!secretHash.equals(device.getSecretHash())) {
-            System.out.println("❌ Ungültiger SecretHash für Gerät: " + deviceId);
+        boolean assigned = device.getAssignedUsers()
+                .stream()
+                .anyMatch(u -> u.getId().equals(user.getId()));
+        if (!assigned) {
+            System.out.println("User ist nicht diesem Gerät zugewiesen: " + deviceId);
             return null;
         }
 
-        if (!username.equals(device.getUserName())) {
-            System.out.println("❌ Username nicht authentifiziert für Gerät: " + deviceId);
+        /*if (!device.getAssignedUsers().contains(user)) {
+            System.out.println("Username nicht authentifiziert für Gerät: " + deviceId);
+            return null;
+        }*/
+
+        if (!secretHash.equals(user.getSecretHash())) {
+            System.out.println("Secret Hash ungültig für User: " + username);
             return null;
         }
 
@@ -84,22 +101,20 @@ public class SmartphoneService {
     }
 
 
-    public Smartphone registerSmartphone(String deviceId, String userName, String secretHash) {
-        if (deviceId == null || secretHash == null) return null;
+    public Smartphone registerSmartphone(String deviceId, String Name) {
+        if (deviceId == null) return null;
 
         // Prüfen, ob Gerät bereits existiert
         Smartphone existing = smartphoneRepository.findByDeviceId(deviceId);
         if (existing != null) {
-            existing.setUserName(userName);
-            existing.setSecretHash(secretHash);
+            existing.setName(Name);
             existing.setStatus("updated");
             return smartphoneRepository.save(existing);
         }
 
         Smartphone s = new Smartphone();
         s.setDeviceId(deviceId);
-        s.setUserName(userName);
-        s.setSecretHash(secretHash);
+        s.setName(Name);
         s.setStatus("inactive");
         // s.setLastSeen(java.time.LocalDateTime.now());
         return smartphoneRepository.save(s);
@@ -184,6 +199,22 @@ public class SmartphoneService {
 
         return assignedrcus;
     }
+
+    public Smartphone assignUsers(Long smartphoneId, List<Long> UserIds) {
+        Smartphone smart = smartphoneRepository.findById(smartphoneId).orElse(null);
+        if (smart == null) return null;
+
+        for (Long userId : UserIds) {
+            User user = userRepository.findById(userId).orElse(null);
+            if (user != null && !smart.getAssignedUsers().contains(user)) {
+                smart.addUser(user);
+            }
+        }
+        return smartphoneRepository.save(smart);
+    }
+
+
+
 
 
 }

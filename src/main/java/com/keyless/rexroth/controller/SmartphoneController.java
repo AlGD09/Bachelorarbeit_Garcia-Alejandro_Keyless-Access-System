@@ -1,17 +1,21 @@
 package com.keyless.rexroth.controller;
 
-import com.keyless.rexroth.dto.SmartphoneRegistrationDTO;
+import com.keyless.rexroth.dto.RCUAssignDTO;
+import com.keyless.rexroth.dto.SmartphoneAssignDTO;
+import com.keyless.rexroth.dto.SmartphoneTokenDTO;
 import com.keyless.rexroth.dto.SmartphoneUnassignDTO;
+import com.keyless.rexroth.dto.SmartphoneRegistrationDTO;
 import com.keyless.rexroth.entity.Smartphone;
+import com.keyless.rexroth.entity.User;
 import com.keyless.rexroth.service.SmartphoneService;
 import com.keyless.rexroth.entity.RCU;
+import com.keyless.rexroth.repository.SmartphoneRepository;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 
@@ -26,9 +30,13 @@ public class SmartphoneController {
     @Autowired
     SmartphoneService smartphoneService;
 
+    @Autowired
+    private SmartphoneRepository smartphoneRepository;
+
+
 
     @PostMapping("/request")
-    public ResponseEntity<?> requestToken(@RequestBody SmartphoneRegistrationDTO dto) {
+    public ResponseEntity<?> requestToken(@RequestBody SmartphoneTokenDTO dto) {
         // smartphoneService prüft device + hash und erzeugt Token (oder null bei Fehler)
         String token = smartphoneService.authenticateAndGenerateToken(dto.getDeviceId(), dto.getUserName(), dto.getSecretHash());
 
@@ -54,7 +62,7 @@ public class SmartphoneController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerSmartphone(@RequestBody SmartphoneRegistrationDTO dto) {
-        Smartphone saved = smartphoneService.registerSmartphone(dto.getDeviceId(), dto.getUserName(), dto.getSecretHash());
+        Smartphone saved = smartphoneService.registerSmartphone(dto.getDeviceId(), dto.getName());
         if (saved == null) {
             return ResponseEntity.badRequest().body("Fehler: Gerät konnte nicht registriert werden.");
         }
@@ -91,6 +99,28 @@ public class SmartphoneController {
 
 
         return ResponseEntity.ok(rcus);
+    }
+
+    @PostMapping("/assign/users")
+    public ResponseEntity<?> assignUsers(@RequestBody SmartphoneAssignDTO dto) {
+        Smartphone updated = smartphoneService.assignUsers(dto.getsmartphoneId(), dto.getUserIds());
+        if (updated == null)
+            return ResponseEntity.badRequest().body("Fehler: Smartphone oder User(s) nicht gefunden.");
+        return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/{smartphoneId}/users")
+    public ResponseEntity<?> getAssignedUsers(@PathVariable Long smartphoneId) {
+        Smartphone smart = smartphoneRepository.findById(smartphoneId).orElse(null);
+        if (smart == null) {
+            return ResponseEntity.status(404).body("Smartphone nicht gefunden");
+        }
+
+        if (smart.getAssignedUsers() == null) {
+            return ResponseEntity.ok("Keine Users zugewiesen");
+        }
+
+        return ResponseEntity.ok(smart.getAssignedUsers());
     }
 
 
