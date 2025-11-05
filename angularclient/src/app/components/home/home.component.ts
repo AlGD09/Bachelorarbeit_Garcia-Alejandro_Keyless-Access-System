@@ -68,7 +68,7 @@ export class HomeComponent {
                 this.zuweisungen.push({
                   sid: smartphone.id ?? 0,
                   smartphoneId: smartphone.deviceId || '–',
-                  smartphoneName: smartphone.Name || '–',
+                  smartphoneName: smartphone.name || '–',
                   users: zugewiesen
                 });
               },
@@ -76,7 +76,7 @@ export class HomeComponent {
                 this.zuweisungen.push({
                   sid: smartphone.id ?? 0,
                   smartphoneId: smartphone.deviceId || '–',
-                  smartphoneName: smartphone.Name || '–',
+                  smartphoneName: smartphone.name || '–',
                   users: []
                 });
               }

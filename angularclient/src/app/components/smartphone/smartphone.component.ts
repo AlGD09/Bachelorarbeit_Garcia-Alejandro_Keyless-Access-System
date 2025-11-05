@@ -62,14 +62,14 @@ export class SmartphoneComponent {
   register(): void {
     const body: Smartphone = {
       deviceId: this.regDeviceId.trim(),
-      Name: this.regName.trim(),
+      name: this.regName.trim(),
     };
-    if (!body.deviceId || !body.Name) { alert('Bitte alle Felder ausfüllen'); return; }
+    if (!body.deviceId || !body.name) { alert('Bitte alle Felder ausfüllen'); return; }
 
     this.smartphoneService.registerSmartphone(body).subscribe({
       next: smart => {
         this.clearRegForm(); this.loadList(); alert('Registrierung erfolgreich');
-        this.router.navigate(['/smartphone/assign'], { queryParams: { id: smart.id, name: smart.Name } });
+        this.router.navigate(['/smartphone/assign'], { queryParams: { id: smart.id, name: smart.name } });
       },
       error: err => { this.errorMsg = err.error?.message || 'Registrierung fehlgeschlagen'; }
     });
