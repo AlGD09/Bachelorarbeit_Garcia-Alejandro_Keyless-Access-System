@@ -49,7 +49,7 @@ export class UserComponent {
     }
     const newUser: User = { username: this.UserName, email: this.Email, secretHash: this.SecretHash };
     this.userService.registerUser(newUser).subscribe({
-      next: _ => { this.clearRegForm(); this.loadList(); alert('Registrierung erfolgreich'); setTimeout(() => this.router.navigate(['/home']), 1200);},
+      next: _ => { this.clearRegForm(); this.loadList(); alert('Registrierung erfolgreich'); },
       error: err => { this.errorMsg = err.error?.message || 'Registrierung fehlgeschlagen'; }
     });
 

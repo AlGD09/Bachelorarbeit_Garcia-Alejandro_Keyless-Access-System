@@ -9,16 +9,17 @@ import { Rcu } from '../../model/rcu';
 import { User } from '../../model/user';
 import { CascadeGraphComponent } from '../../components/graph/cascade-graph.component';
 
+
 @Component({
-  selector: 'app-home',
+  selector: 'app-zuweisungen',
   standalone: true,
   imports: [
     CommonModule,
     CascadeGraphComponent
   ],
-  templateUrl: './home.component.html'
+  templateUrl: './zuweisungen.component.html'
 })
-export class HomeComponent {
+export class ZuweisungenComponent {
   // Smartphones
   smartphones: Smartphone[] = [];
   // RCUs
@@ -34,13 +35,13 @@ export class HomeComponent {
   errorMsg = '';
 
   constructor(
-    private smartphoneService: SmartphoneService,
-    private rcuService: RcuService,
-    private userService: UserService,
-    private router: Router
-  ) {
-    this.loadData();
-  }
+      private smartphoneService: SmartphoneService,
+      private rcuService: RcuService,
+      private userService: UserService,
+      private router: Router
+    ) {
+      this.loadData();
+    }
 
   // Lädt beide Tabellen gleichzeitig
   loadData(): void {
@@ -101,30 +102,30 @@ export class HomeComponent {
         this.rcus = data;
 
         this.assignments = [];
-              this.rcus.forEach(rcu => {
-                if (rcu.id) {
-                  this.rcuService.getAssignedSmartphones(rcu.rcuId).subscribe({
-                    next: (smartphones: Smartphone[]) => {
-                      // Prüfen, ob gültiges Smartphone-Objekt vorhanden ist
-                      const assigned = smartphones ?? [];
-                      this.assignments.push({
-                        rid: rcu.id ?? 0,
-                        rcuId: rcu.rcuId || '–',
-                        rcuName: rcu.name || '–',
-                        smartphones: assigned
-                      });
-                    },
-                    error: () => {
-                      this.assignments.push({
-                        rid: rcu.id ?? 0,
-                        rcuId: rcu.rcuId || '–',
-                        rcuName: rcu.name || '–',
-                        smartphones: []
-                      });
-                    }
-                  });
-                }
-              });
+        this.rcus.forEach(rcu => {
+          if (rcu.id) {
+            this.rcuService.getAssignedSmartphones(rcu.rcuId).subscribe({
+              next: (smartphones: Smartphone[]) => {
+                // Prüfen, ob gültiges Smartphone-Objekt vorhanden ist
+                const assigned = smartphones ?? [];
+                this.assignments.push({
+                  rid: rcu.id ?? 0,
+                  rcuId: rcu.rcuId || '–',
+                  rcuName: rcu.name || '–',
+                  smartphones: assigned
+                });
+              },
+              error: () => {
+                this.assignments.push({
+                  rid: rcu.id ?? 0,
+                  rcuId: rcu.rcuId || '–',
+                  rcuName: rcu.name || '–',
+                  smartphones: []
+                });
+              }
+            });
+          }
+        });
       },
       error: (err: any) => {
         this.errorMsg = err.message || 'Fehler beim Laden der RCUs';
@@ -132,7 +133,39 @@ export class HomeComponent {
     });
   }
 
+  openAssignPage(id: number, name: string): void{
+      this.router.navigate(['/maschine/assign'], { queryParams: { id: id, name: name } });
+  }
 
+  openAssignSmartphone(id: number, name: string): void{
+    this.router.navigate(['/smartphone/assign'], { queryParams: { id: id, name: name } });
+  }
+
+  removeSmartphone(rcuId: string, smartphoneId: number): void{
+    this.smartphoneService.removeSmartphone(rcuId, smartphoneId).subscribe({
+      next: () => {
+        this.loadData(); // Nach dem Löschen neu laden
+      },
+      error: () => {
+        this.errorMsg = 'Fehler beim Entfernen der Smartphonezuweisung.';
+      }
+
+    });
+
+  }
+
+  removeUser(smartphoneId: string, userId: number): void{
+    this.userService.removeUser(smartphoneId, userId).subscribe({
+      next: () => {
+        this.loadData(); // Nach dem Löschen neu laden
+      },
+      error: () => {
+        this.errorMsg = 'Fehler beim Entfernen der Userzuweisung.';
+      }
+
+    });
+
+  }
 
 
 

@@ -48,7 +48,6 @@ export class SmartphoneAssignComponent implements OnInit {
       this.smartphoneService.assignUsers(this.smartphoneId, this.selectedUserIds).subscribe({
         next: _ => {
           this.message = 'Users erfolgreich zugewiesen!';
-          setTimeout(() => this.router.navigate(['/home']), 1);
         },
         error: () => this.message = 'Zuweisung fehlgeschlagen.'
       });

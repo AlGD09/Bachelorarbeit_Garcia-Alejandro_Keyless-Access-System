@@ -6,7 +6,8 @@ import { RcuComponent } from './components/rcu/rcu.component';
 import { UserComponent } from './components/user/user.component';
 import { RcuAssignComponent } from './components/rcu/rcu-assign.component';
 import { HomeComponent } from './components/home/home.component';
-
+import { EinheitenComponent } from './components/einheiten/einheiten.component';
+import { ZuweisungenComponent } from './components/zuweisungen/zuweisungen.component';
 
 
 export const routes: Routes = [
@@ -16,7 +17,9 @@ export const routes: Routes = [
   { path: 'smartphone', component: SmartphoneComponent },
   { path: 'smartphone/assign', component: SmartphoneAssignComponent },
   { path: 'maschine', component: RcuComponent},
-  { path: 'maschine/assign', component: RcuAssignComponent}
+  { path: 'maschine/assign', component: RcuAssignComponent},
+  { path: 'einheiten', component: EinheitenComponent},
+  { path: 'zuweisungen', component: ZuweisungenComponent}
 ];
 
 // @NgModule({

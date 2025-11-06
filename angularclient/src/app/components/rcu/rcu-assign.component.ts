@@ -49,7 +49,6 @@ export class RcuAssignComponent implements OnInit {
     this.rcuService.assignSmartphones(this.rcuId, this.selectedSmartphoneIds).subscribe({
       next: _ => {
         this.message = 'Smartphone erfolgreich zugewiesen!';
-        setTimeout(() => this.router.navigate(['/home']), 1200);
       },
       error: () => this.message = 'Zuweisung fehlgeschlagen.'
     });
