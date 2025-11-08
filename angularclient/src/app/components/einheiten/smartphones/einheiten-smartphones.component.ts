@@ -58,6 +58,22 @@ export class EinheitenSmartphonesComponent {
     }
   }
 
+  getSmartphoneImage(smartphoneName: string): { src: string; height: string } {
+    if (!smartphoneName) return { src: 'phone.png', height: 'h-28' };
+
+    const name = smartphoneName.toLowerCase();
+
+    if (name.includes('iphone')) {
+      return { src: 'apple.png', height: 'h-28' };
+    } else if (name.includes('samsung')) {
+      return { src: 'samsung.png', height: 'h-28' };
+    } else if (name.includes('xiaomi')) {
+      return { src: 'mi.png', height: 'h-28' };
+    } else {
+      return { src: 'phone.png', height: 'h-28' };
+    }
+  }
+
 
 
 

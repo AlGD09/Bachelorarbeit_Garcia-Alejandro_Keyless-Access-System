@@ -10,42 +10,83 @@
     </p>
   </div>
 
-  <!-- Smartphones -->
-  <div class="bg-white rounded-2xl px-20 pt-16 w-full">
-    <div class="overflow-x-auto">
-      <table *ngIf="smartphones?.length" class="w-full text-sm text-left border-t border-gray-200">
-        <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
-        <tr>
-          <th class="px-4 py-2">ID</th>
-          <th class="px-4 py-2">Name</th>
-          <th class="px-4 py-2">Device ID</th>
-          <th class="px-4 py-2">Status</th>
-          <th class="px-4 py-2">Last Seen</th>
-          <th class="px-4 py-2">Aktionen</th>
-        </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-        <tr *ngFor="let s of smartphones" class="hover:bg-blue-50 transition text-gray-700 align-middle">
-          <td class="px-4 py-2">{{ s.id }}</td>
-          <td class="px-4 py-2">{{ s.name }}</td>
-          <td class="px-4 py-2">{{ s.deviceId }}</td>
-          <td class="px-4 py-2">{{ s.status }}</td>
-          <td class="px-4 py-2">{{ s.lastSeen || '—' }}</td>
-          <td class="px-4 py-2">
-            <button
-              (click)="deleteSmartphone(s.id!)"
-              class="text-red-600 hover:text-red-800 font-medium whitespace-nowrap px-2 py-1 rounded transition"
-            >
-              Löschen
-            </button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-    <div *ngIf="!smartphones?.length && !loading" class="text-gray-500 italic mt-2">
-      Keine Smartphones vorhanden
-    </div>
-  </div>
 
+  <!-- Smartphone-Karten -->
+  <div class="px-20 pb-10">
+    <div
+      *ngIf="smartphones?.length; else noSmartphones"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"
+    >
+      <div
+        *ngFor="let s of smartphones"
+        class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 p-6 flex flex-col items-center text-center"
+      >
+        <!-- Symbol oben -->
+        <div class="bg-white shadow-sm rounded-lg p-14 mb-2">
+          <img
+            [src]="getSmartphoneImage(s.name).src"
+            [ngClass]="getSmartphoneImage(s.name).height"
+            alt="Smartphonesymbol"
+          />
+        </div>
+
+        <!-- Name und ID -->
+        <div class="mb-3">
+          <h3 class="text-lg font-semibold text-[#002B49] leading-tight">
+            {{ s.name || 'Unbenanntes Smartphone'}}
+          </h3>
+          <p class="text-xs text-gray-500">ID: {{ s.id }}</p>
+        </div>
+
+        <!-- Device-ID und LastSeen untereinander -->
+        <div class="pt-1 text-gray-600 text-center mb-4 flex flex-col justify-between">
+          <!-- Device-ID -->
+          <div class="flex justify-left items-baseline space-x-2">
+            <div class="font-semibold text-gray-900">Device-ID:</div>
+            <div class="font-medium text-sm">{{ s.deviceId || '—' }}</div>
+          </div>
+
+          <!-- LastSeen -->
+          <div class="flex justify-left items-baseline space-x-2">
+            <div class="font-semibold text-gray-900">Last Seen:</div>
+            <div class="font-medium text-sm">
+              {{ s.lastSeen ? (s.lastSeen | date:'dd.MM.yyyy - HH:mm') : '—' }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="mb-3">
+          <h3
+            class="text-lg font-semibold leading-tight capitalize"
+            [ngClass]="{
+              'text-green-600': s.status === 'active',
+              'text-gray-600': s.status === 'inactive',
+              'text-orange-700': s.status === 'updated',
+              'text-gray-500': !s.status
+            }"
+          >
+            {{ s.status || 'Unbenanntes Smartphone'}}
+          </h3>
+        </div>
+
+
+        <!-- Löschen-Button unten -->
+        <button
+          (click)="deleteSmartphone(s.id!)"
+          class="mt-auto text-red-700 hover:text-red-700 transition"
+          title="Löschen"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Leerer Zustand -->
+    <ng-template #noSmartphones>
+      <div class="text-gray-500 italic mt-6 text-sm text-center">
+        Keine Smartphones vorhanden
+      </div>
+    </ng-template>
+  </div>
 </div>
