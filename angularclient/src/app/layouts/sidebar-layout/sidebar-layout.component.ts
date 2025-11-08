@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { EinheitenLayoutComponent } from '../../layouts/einheiten-layout/einheiten-layout.component';
 
 @Component({
   selector: 'app-sidebar-layout',

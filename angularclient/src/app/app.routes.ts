@@ -10,6 +10,7 @@ import { EinheitenComponent } from './components/einheiten/einheiten.component';
 import { ZuweisungenComponent } from './components/zuweisungen/zuweisungen.component';
 import { HomeLayoutComponent } from './layouts/home-layout/home-layout.component';
 import { SidebarLayoutComponent } from './layouts/sidebar-layout/sidebar-layout.component';
+import { EinheitenLayoutComponent } from './layouts/einheiten-layout/einheiten-layout.component';
 
 export const routes: Routes = [
   {
@@ -29,11 +30,16 @@ export const routes: Routes = [
       { path: 'smartphone/assign', component: SmartphoneAssignComponent },
       { path: 'maschine', component: RcuComponent},
       { path: 'maschine/assign', component: RcuAssignComponent},
-      { path: 'einheiten', component: EinheitenComponent},
+      { path: 'einheiten', component: EinheitenLayoutComponent,
+        children: [
+          { path: '', component: EinheitenComponent },
+          { path: 'smartphones', component: SmartphoneComponent },
+          { path: 'maschinen', component: RcuComponent },
+        ],
+      },
       { path: 'zuweisungen', component: ZuweisungenComponent}
     ],
   },
-
 ];
 
 // @NgModule({
