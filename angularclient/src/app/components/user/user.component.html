@@ -65,6 +65,20 @@
             Benutzer registrieren
           </button>
         </div>
+
+        <div
+          *ngIf="registered"
+          class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-blue-800 p-4 rounded text-[15px] text-gray-700"
+        >
+          <span class="font-light">Benutzer erfolgreich registriert!</span>
+        </div>
+
+        <div
+          *ngIf="err_registered"
+          class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-red-800 p-4 rounded text-[15px] text-gray-700"
+        >
+          <span class="font-light">Fehler bei der Registrierung</span>
+        </div>
       </form>
     </div>
 
@@ -118,7 +132,7 @@
         <!-- Hash Ergebnis -->
         <div
           *ngIf="getHash"
-          class="mt-8 bg-gray-50 border-l-4 border-blue-600 p-4 rounded text-sm font-mono text-gray-800"
+          class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-blue-800 p-4 rounded text-[15px] text-gray-700"
         >
           <span class="font-semibold">Secret Hash:</span> {{ lastHash }}
         </div>

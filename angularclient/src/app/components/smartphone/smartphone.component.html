@@ -52,6 +52,13 @@
             Smartphone registrieren
           </button>
         </div>
+
+        <div
+          *ngIf="registered"
+          class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-blue-800 p-4 rounded text-[15px] text-gray-700"
+        >
+          <span class="font-light">Smartphone erfolgreich registriert!</span>
+        </div>
       </form>
     </div>
 

@@ -17,6 +17,7 @@ export class SmartphoneComponent {
   // Formularfelder Registrierung
   regDeviceId = '';
   regName = '';
+  registered: boolean = false;
 
   // Formularfelder Auth
   authToken: string | null = null;
@@ -68,7 +69,7 @@ export class SmartphoneComponent {
 
     this.smartphoneService.registerSmartphone(body).subscribe({
       next: smart => {
-        this.clearRegForm(); this.loadList(); alert('Registrierung erfolgreich');
+        this.clearRegForm(); this.loadList(); this.registered = true;
         this.router.navigate(['/smartphone/assign'], { queryParams: { id: smart.id, name: smart.name } });
       },
       error: err => { this.errorMsg = err.error?.message || 'Registrierung fehlgeschlagen'; }

@@ -24,6 +24,10 @@ export class UserComponent {
   Email = '';
   SecretHash = '';
 
+  // Registrierung
+  registered: boolean = false;
+  err_registered: boolean = false;
+
   // Request Hash
   getHash: boolean = false;
   selectedUser: User | null = null;
@@ -53,8 +57,8 @@ export class UserComponent {
     }
     const newUser: User = { username: this.UserName, email: this.Email, secretHash: this.SecretHash };
     this.userService.registerUser(newUser).subscribe({
-      next: _ => { this.clearRegForm(); this.loadList(); alert('Registrierung erfolgreich'); },
-      error: err => { this.errorMsg = err.error?.message || 'Registrierung fehlgeschlagen'; }
+      next: _ => { this.clearRegForm(); this.loadList(); this.registered = true; },
+      error: err => { this.err_registered = true; }
     });
 
   }
