@@ -77,7 +77,8 @@
           *ngIf="err_registered"
           class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-red-800 p-4 rounded text-[15px] text-gray-700"
         >
-          <span class="font-light">Fehler bei der Registrierung</span>
+          <span class="font-semibold">Fehler</span>
+          <span class="font-light"> bei der Registrierung</span>
         </div>
       </form>
     </div>
@@ -134,7 +135,8 @@
           *ngIf="getHash"
           class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-blue-800 p-4 rounded text-[15px] text-gray-700"
         >
-          <span class="font-semibold">Secret Hash:</span> {{ lastHash }}
+          <span class="font-semibold">Secret Hash:</span>
+          <span class="font-light"> {{ lastHash }}</span>
         </div>
       </form>
     </div>

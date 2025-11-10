@@ -55,7 +55,7 @@
 
         <div
           *ngIf="registered"
-          class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-blue-800 p-4 rounded text-[15px] text-gray-700"
+          class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-blue-600 p-4 rounded text-[15px] text-gray-700"
         >
           <span class="font-light">Smartphone erfolgreich registriert!</span>
         </div>
@@ -109,12 +109,21 @@
           </button>
         </div>
 
-        <!-- Hash Ergebnis -->
+        <!-- Token Ergebnis -->
         <div
           *ngIf="authToken"
-          class="mt-8 bg-gray-50 border-l-4 border-blue-600 p-4 rounded text-sm font-mono text-gray-800"
+          class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-blue-600 p-4 rounded text-[15px] text-gray-700"
         >
-          <span class="font-semibold">Auth Token:</span> {{ authToken }}
+          <span class="font-semibold">Auth Token:</span>
+          <span class="font-light"> {{ authToken }}</span>
+        </div>
+
+        <div
+          *ngIf="empty"
+          class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-[#DA0000] p-4 rounded text-[15px] text-gray-700"
+        >
+          <span class="font-semibold">Fehler:</span>
+          <span class="font-light"> Kein Benutzer für dieses Smartphone zugewiesen.</span>
         </div>
       </form>
     </div>

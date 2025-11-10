@@ -20,6 +20,9 @@ export class RcuComponent {
   location = '';
   message = '';
 
+  registered: boolean = false;
+  exists: boolean = false;
+
   rcus: Rcu[] = [];
 
   constructor(private rcuService: RcuService, private router: Router) {}
@@ -30,14 +33,14 @@ export class RcuComponent {
 
   register(): void {
     if (!this.rcuId || !this.name) {
-      this.message = 'Bitte ID und Name eingeben.';
+      alert('Bitte ID und Name eingeben.');
       return;
     }
 
     const newRcu: Rcu = { rcuId: this.rcuId, name: this.name, location: this.location };
     this.rcuService.registerRcu(newRcu).subscribe({
       next: rcu => {
-        this.message = 'Maschine erfolgreich registriert!';
+        this.registered = true;
         this.name = '';
         this.rcuId = '';
         this.location = '';
@@ -45,7 +48,7 @@ export class RcuComponent {
         this.router.navigate(['/maschine/assign'], { queryParams: { name: rcu.name, id: rcu.id } });
       },
       error: err => {
-        this.message = err.error?.message || 'Fehler bei der Registrierung.';
+        this.exists = true;
       }
     });
   }

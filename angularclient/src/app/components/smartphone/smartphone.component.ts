@@ -22,6 +22,7 @@ export class SmartphoneComponent {
   // Formularfelder Auth
   authToken: string | null = null;
   selectedSmartphone: Smartphone | null = null;
+  empty: boolean = false;
 
   // Liste
   phones: Smartphone[] = [];
@@ -84,7 +85,7 @@ export class SmartphoneComponent {
 
     const { deviceId } = this.selectedSmartphone;
     if (!this.selectedSmartphone.users || this.selectedSmartphone.users.length === 0) {
-        alert('Kein Benutzer für dieses Smartphone gefunden.');
+        this.empty = true;
         return;
     }
 
@@ -93,7 +94,7 @@ export class SmartphoneComponent {
 
 
     this.smartphoneService.requestToken(deviceId, username, secretHash).subscribe({
-      next: res => { this.authToken = res.auth_token; alert('Token erhalten'); this.clearAuthForm(); },
+      next: res => { this.authToken = res.auth_token; this.clearAuthForm(); },
       error: _ => { this.authToken = null; alert('Auth fehlgeschlagen'); }
     });
   }

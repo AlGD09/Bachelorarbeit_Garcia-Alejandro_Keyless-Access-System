@@ -63,6 +63,23 @@
             Maschine registrieren
           </button>
         </div>
+
+
+        <div
+          *ngIf="registered"
+          class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-blue-600 p-4 rounded text-[15px] text-gray-700"
+        >
+          <span class="font-light">Maschine erfolgreich registriert! </span>
+        </div>
+
+        <div
+          *ngIf="exists"
+          class="mt-8 bg-gradient-to-r from-[#FCFCFC] to-white border-l-4 border-[#DA0000] p-4 rounded text-[15px] text-gray-700"
+        >
+          <span class="font-semibold">Fehler:</span>
+          <span class="font-light"> Maschine bereits registriert (wiederholte RCU-ID).</span>
+        </div>
+
       </form>
     </div>
 </div>
