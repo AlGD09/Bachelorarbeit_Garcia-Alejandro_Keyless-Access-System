@@ -93,7 +93,20 @@ export class UserComponent {
 
   requestHash(): void {
       if (!this.selectedUser) {
-        alert('Bitte ein User auswählen.');
+        //alert('Bitte ein User auswählen.');
+        const result = Swal.fire({
+          text: `Bitte wählen Sie einen Benutzer aus`,
+          icon: 'warning',
+          showCancelButton: true,
+          showConfirmButton: false,
+          cancelButtonText: 'OK',
+          color: '#002B49', //Textfarbe
+          buttonsStyling: false,
+          customClass: {
+            // actions: 'space-x-4 justify-center',
+            cancelButton: 'text-[#0002B49] font-semibold px-4 py-2 rounded-lg hover:text-blue-800 transition focus:outline-none focus:ring-0'
+          }
+        });
         return;
       }
 
