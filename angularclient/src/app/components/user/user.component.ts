@@ -70,15 +70,15 @@ export class UserComponent {
     }
 
     if (this.users.some(u => u.username === this.UserName)) {
-      this.err_registered = true;
+      this.err_registered = true; this.registered = false;
       return;
     }
 
 
     const newUser: User = { username: this.UserName, email: this.Email, secretHash: this.SecretHash };
     this.userService.registerUser(newUser).subscribe({
-      next: _ => { this.clearRegForm(); this.loadList(); this.registered = true; },
-      error: err => { this.err_registered = true; }
+      next: _ => { this.clearRegForm(); this.loadList(); this.registered = true; this.err_registered = false;},
+      error: err => { this.err_registered = true; this.registered = false;}
     });
 
   }

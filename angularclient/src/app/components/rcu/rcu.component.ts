@@ -55,6 +55,7 @@ export class RcuComponent {
     this.rcuService.registerRcu(newRcu).subscribe({
       next: async rcu => {
         this.registered = true;
+        this.exists = false;
         this.name = '';
         this.rcuId = '';
         this.location = '';
@@ -79,7 +80,7 @@ export class RcuComponent {
         }
       },
       error: err => {
-        this.exists = true;
+        this.exists = true; this.registered = false;
       }
     });
   }

@@ -19,6 +19,7 @@ export class SmartphoneComponent {
   regDeviceId = '';
   regName = '';
   registered: boolean = false;
+  updated: boolean = false;
 
   // Formularfelder Auth
   authToken: string | null = null;
@@ -81,15 +82,20 @@ export class SmartphoneComponent {
           cancelButton: 'text-[#0002B49] font-semibold px-4 py-2 rounded-lg hover:text-blue-800 transition focus:outline-none focus:ring-0'
         }
       });
-
-
       // alert('Bitte alle Felder ausfüllen');
       return;
     }
 
+    if (this.phones.some(p => p.deviceId === body.deviceId)) {
+      this.updated = true; this.registered = false;
+      return;
+    } else {
+      this.registered = true; this.updated = false;
+    }
+
     this.smartphoneService.registerSmartphone(body).subscribe({
       next: async smart => {
-        this.clearRegForm(); this.loadList(); this.registered = true;
+        this.clearRegForm(); this.loadList();
         const result = await Swal.fire({
           text: `Möchten Sie einen Benutzer dem Gerät ${smart.name} zuordnen?`,
           icon: 'question',
@@ -137,7 +143,7 @@ export class SmartphoneComponent {
     const { id } = this.selectedSmartphone;
     const { name } = this.selectedSmartphone;
     if (!this.selectedSmartphone.users || this.selectedSmartphone.users.length === 0) {
-        this.empty = true;
+        this.empty = true; this.authToken = null;
         Swal.fire({
             text: `Für die Token-Generierung muss dem ausgewählten Gerät mindestens ein Benutzer zugewiesen sein.\n\nMöchten Sie jetzt einen Benutzer zuweisen?`,
             icon: 'question',
@@ -164,7 +170,7 @@ export class SmartphoneComponent {
 
 
     this.smartphoneService.requestToken(deviceId, username, secretHash).subscribe({
-      next: res => { this.authToken = res.auth_token; this.clearAuthForm(); },
+      next: res => { this.authToken = res.auth_token; this.clearAuthForm(); this.empty = false;},
       error: _ => { this.authToken = null; alert('Auth fehlgeschlagen'); }
     });
   }
