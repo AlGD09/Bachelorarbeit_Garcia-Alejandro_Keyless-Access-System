@@ -227,7 +227,7 @@ export class EventComponent implements OnInit {
   private colorByResult(result: string): string {
     switch (result) {
       case 'Fehler': return 'orange';
-      case 'Authentifiziert': return 'blue';
+      case 'Freigegeben': return 'blue';
       case 'Entsperrt': return 'green';
       default: return 'gray';
     }
