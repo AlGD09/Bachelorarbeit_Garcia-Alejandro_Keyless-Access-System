@@ -235,9 +235,9 @@ export class EventComponent implements OnInit {
 
   private xByResult(result: string): number {
     switch (result) {
-      case 'Fehler': return 200;
-      case 'Freigegeben': return 400;
-      case 'Entsperrt': return 600;
+      case 'Fehler': return 150;
+      case 'Freigegeben': return 350;
+      case 'Entsperrt': return 550;
       default: return 400;
     }
   }
