@@ -115,14 +115,22 @@ export class EventComponent implements OnInit {
     const svg = d3.select(element);
     svg.selectAll("*").remove();
 
+    const nodeCount = events.length;
+    // Höhe berechnen:
+    // <10  -> 800px
+    // 10–20 -> linear bis 1600px
+    const HEIGHT =
+      nodeCount <= 10
+        ? 800
+        : 800 + (nodeCount - 10) * 80;  // max +800px bei 20 Nodes
+
     const WIDTH = 800;
-    const HEIGHT = 800;
     const spacing = 80;
 
     svg
       .attr("viewBox", `0 0 ${WIDTH} ${HEIGHT}`)
       .attr("width", "100%")
-      .attr("height", "100%");
+      .attr("height", HEIGHT);
 
     const g = svg.append("g");
 
