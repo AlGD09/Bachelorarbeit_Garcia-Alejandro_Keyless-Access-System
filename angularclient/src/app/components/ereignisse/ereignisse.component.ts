@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RcuService } from '../../services/rcu.service';
+import { SmartphoneService } from '../../services/smartphone.service';
 import { Rcu } from '../../model/rcu';
 import { Event } from '../../model/event';
 import { Anomaly } from '../../model/anomaly';
@@ -25,6 +26,7 @@ export class EventComponent implements OnInit {
   constructor(
     private el: ElementRef,
     private rcuService: RcuService,
+    private smartphoneService: SmartphoneService,
     private router: Router
   ) {
     this.loadData();
@@ -108,6 +110,62 @@ export class EventComponent implements OnInit {
       }
     });
   }
+
+  handleClick(a: Anomaly) {
+    if (a.status === true) {
+        this.BlockSmartphone(a.deviceName, a.deviceId);
+      } else {
+        this.UnblockSmartphone(a.deviceName, a.deviceId);
+      }
+
+  }
+
+  BlockSmartphone(deviceName: string, deviceId: string) {
+    Swal.fire({
+      text: `Möchten Sie ${deviceName} sperren?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ja',
+      cancelButtonText: 'Nein',
+      color: '#002B49',
+      buttonsStyling: false,
+      customClass: {
+        actions: 'space-x-4 justify-center',
+        confirmButton: 'text-[#002B49] font-semibold px-4 py-2 rounded-lg hover:text-blue-800 transition',
+        cancelButton: 'text-[#002B49] font-semibold px-4 py-2 rounded-lg hover:text-blue-800 transition'
+      }
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.smartphoneService.blockSmartphone(deviceId).subscribe({
+          next: () => this.loadData()
+        });
+      }
+    });
+  }
+
+  UnblockSmartphone(deviceName: string, deviceId: string) {
+    Swal.fire({
+      text: `Smartphone ${deviceName} ist blockiert. Möchten Sie es entsperren?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ja',
+      cancelButtonText: 'Nein',
+      color: '#002B49',
+      buttonsStyling: false,
+      customClass: {
+        actions: 'space-x-4 justify-center',
+        confirmButton: 'text-[#002B49] font-semibold px-4 py-2 rounded-lg hover:text-blue-800 transition',
+        cancelButton: 'text-[#002B49] font-semibold px-4 py-2 rounded-lg hover:text-blue-800 transition'
+      }
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.smartphoneService.unblockSmartphone(deviceId).subscribe({
+          next: () => this.loadData()
+        });
+      }
+    });
+  }
+
 
   renderTree(events: Event[]) {
 

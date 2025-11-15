@@ -50,6 +50,8 @@
         <div
           *ngFor="let a of anomalies"
           class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 p-6 flex flex-col items-center text-center"
+          (click)="handleClick(a)"
+          [ngClass]="{ 'opacity-40 grayscale': a.status === false }"
         >
           <!-- Symbol oben -->
           <div class="bg-white shadow-sm rounded-lg p-14 mb-3 text-center">
@@ -83,7 +85,7 @@
 
             <!-- Rechte Spalte -->
             <div>
-              <h3 class="text-sm font-semibold text-gray-700 leading-tight">
+              <h3 class="text-sm font-semibold text-gray-700 leading-tight truncate w-24">
                 {{ a.deviceName || 'Unbekanntes Smartphone' }}
               </h3>
               <p class="text-xs text-gray-500 truncate w-20">
@@ -104,7 +106,7 @@
 
           <!-- Löschen-Button unten -->
           <button
-            (click)="deleteAnomaly(a.id!)"
+            (click)="deleteAnomaly(a.id!); $event.stopPropagation()"
             class="mt-auto text-red-700 hover:text-red-700 transition"
             title="Löschen"
           >

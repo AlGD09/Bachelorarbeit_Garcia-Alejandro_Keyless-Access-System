@@ -5,6 +5,7 @@ import com.keyless.rexroth.dto.SmartphoneAssignDTO;
 import com.keyless.rexroth.dto.SmartphoneTokenDTO;
 import com.keyless.rexroth.dto.SmartphoneUnassignDTO;
 import com.keyless.rexroth.dto.SmartphoneRegistrationDTO;
+import com.keyless.rexroth.dto.SmartphoneBlockDTO;
 import com.keyless.rexroth.entity.Smartphone;
 import com.keyless.rexroth.entity.User;
 import com.keyless.rexroth.service.SmartphoneService;
@@ -121,6 +122,18 @@ public class SmartphoneController {
         }
 
         return ResponseEntity.ok(smart.getAssignedUsers());
+    }
+
+    @PostMapping("/block/smartphone")
+    public ResponseEntity<?> blockSmartphone(@RequestBody SmartphoneBlockDTO dto) {
+        smartphoneService.blockSmartphone(dto.getdeviceId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/unblock/smartphone")
+    public ResponseEntity<?> unblockSmartphone(@RequestBody SmartphoneBlockDTO dto) {
+        smartphoneService.unblockSmartphone(dto.getdeviceId());
+        return ResponseEntity.noContent().build();
     }
 
 

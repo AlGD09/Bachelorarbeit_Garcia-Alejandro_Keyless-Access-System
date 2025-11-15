@@ -10,6 +10,7 @@ import java.util.List;
 @Repository
 public interface AnomalyRepository extends JpaRepository<Anomaly, Long> {
     Anomaly findByName(String name);
+    List<Anomaly> findAllByDeviceId(String deviceId);
     List<Anomaly> findAllByOrderByEventTimeDesc();
     Boolean existsByRcuIdAndDeviceIdAndEventTime(String rcuId, String deviceId, LocalDateTime eventTime);
 }

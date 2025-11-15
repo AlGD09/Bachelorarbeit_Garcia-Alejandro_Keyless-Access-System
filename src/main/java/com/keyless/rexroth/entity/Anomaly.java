@@ -19,6 +19,7 @@ public class Anomaly {
     private String rcuId;
     private String deviceName;
     private String deviceId;
+    private Boolean status;
     private LocalDateTime eventTime;
 
     public Long getId() { return id; }
@@ -35,6 +36,9 @@ public class Anomaly {
 
     public String getDeviceId() { return deviceId; }
     public void setDeviceId(String deviceId) { this.deviceId = deviceId; }
+
+    public Boolean getStatus() { return status; }
+    public void setStatus(Boolean status) { this.status = status; }
 
     public LocalDateTime getEventTime() { return eventTime; }
     public void setEventTime(LocalDateTime eventTime) { this.eventTime = eventTime; }

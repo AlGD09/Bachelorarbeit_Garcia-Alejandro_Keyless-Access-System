@@ -69,6 +69,61 @@ export class EinheitenSmartphonesComponent {
     });
   }
 
+  handleClick(s: Smartphone) {
+      if (s.status === 'gesperrt') {
+          this.UnblockSmartphone(s.name, s.deviceId);
+        } else {
+          this.BlockSmartphone(s.name, s.deviceId);
+        }
+
+    }
+
+    BlockSmartphone(name: string, deviceId: string) {
+      Swal.fire({
+        text: `Möchten Sie ${name} sperren?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ja',
+        cancelButtonText: 'Nein',
+        color: '#002B49',
+        buttonsStyling: false,
+        customClass: {
+          actions: 'space-x-4 justify-center',
+          confirmButton: 'text-[#002B49] font-semibold px-4 py-2 rounded-lg hover:text-blue-800 transition',
+          cancelButton: 'text-[#002B49] font-semibold px-4 py-2 rounded-lg hover:text-blue-800 transition'
+        }
+      }).then(result => {
+        if (result.isConfirmed) {
+          this.smartphoneService.blockSmartphone(deviceId).subscribe({
+            next: () => this.loadData()
+          });
+        }
+      });
+    }
+
+    UnblockSmartphone(name: string, deviceId: string) {
+      Swal.fire({
+        text: `Smartphone ${name} ist blockiert. Möchten Sie es entsperren?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ja',
+        cancelButtonText: 'Nein',
+        color: '#002B49',
+        buttonsStyling: false,
+        customClass: {
+          actions: 'space-x-4 justify-center',
+          confirmButton: 'text-[#002B49] font-semibold px-4 py-2 rounded-lg hover:text-blue-800 transition',
+          cancelButton: 'text-[#002B49] font-semibold px-4 py-2 rounded-lg hover:text-blue-800 transition'
+        }
+      }).then(result => {
+        if (result.isConfirmed) {
+          this.smartphoneService.unblockSmartphone(deviceId).subscribe({
+            next: () => this.loadData()
+          });
+        }
+      });
+    }
+
   getSmartphoneImage(smartphoneName: string): { src: string; height: string } {
     if (!smartphoneName) return { src: 'phone.png', height: 'h-28' };
 

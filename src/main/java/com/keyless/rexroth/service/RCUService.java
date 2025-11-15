@@ -90,7 +90,7 @@ public class RCUService {
         List<Event> events = eventRepository.findByRcuIdOrderByEventTimeAsc(rcuId);
 
         // Wenn mehr als 10 vorhanden -> älteste löschen
-        while (events.size() > 10) {
+        while (events.size() > 20) {
             Event oldest = events.get(0);   // erstes Element = ältestes
             eventRepository.delete(oldest);
             events.remove(0);
@@ -135,6 +135,7 @@ public class RCUService {
         anomaly.setName(rcu.getName());
         anomaly.setDeviceName(deviceName);
         anomaly.setDeviceId(deviceId);
+        anomaly.setStatus(true);
         anomaly.setRcuId(rcuId);
         anomaly.setEventTime(ts);
         return anomaly;

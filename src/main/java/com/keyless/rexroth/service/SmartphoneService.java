@@ -2,9 +2,11 @@ package com.keyless.rexroth.service;
 
 import com.keyless.rexroth.entity.RCU;
 import com.keyless.rexroth.entity.User;
+import com.keyless.rexroth.entity.Anomaly;
 import com.keyless.rexroth.repository.RCURepository;
 import com.keyless.rexroth.repository.SmartphoneRepository;
 import com.keyless.rexroth.repository.UserRepository;
+import com.keyless.rexroth.repository.AnomalyRepository;
 import com.keyless.rexroth.entity.Smartphone;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class SmartphoneService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AnomalyRepository anomalyRepository;
 
     // Feste Testgeräte (deviceId → secretHash)
     //private final Map<String, String> registeredDevices = new HashMap<>();
@@ -48,6 +53,11 @@ public class SmartphoneService {
             System.out.println("Gerät nicht gefunden: " + deviceId);
             return null;
         }
+        if (device.getStatus().equals("gesperrt")) {
+            System.out.println("Gerät blockiert: " + deviceId);
+            return null;
+        }
+
         User user = userRepository.findByUsername(username);
         if (user == null) {
             System.out.println("User nicht gefunden: " + username);
@@ -180,6 +190,38 @@ public class SmartphoneService {
 
             rcu.removeSmartphone(phone);
             rcuRepository.save(rcu);
+        }
+    }
+
+    public void blockSmartphone(String deviceId) {
+        Smartphone smart = smartphoneRepository.findByDeviceId(deviceId);
+        if (smart == null) {
+            throw new RuntimeException("Smartphone not found: " + deviceId);
+        }
+        smart.setStatus("gesperrt");
+        smartphoneRepository.save(smart);
+        List<Anomaly> anomalies = anomalyRepository.findAllByDeviceId(deviceId);
+        if (anomalies != null) {
+            for (Anomaly anomaly : anomalies) {
+                anomaly.setStatus(false);
+                anomalyRepository.save(anomaly);
+            }
+        }
+    }
+
+    public void unblockSmartphone(String deviceId) {
+        Smartphone smart = smartphoneRepository.findByDeviceId(deviceId);
+        if (smart == null) {
+            throw new RuntimeException("Smartphone not found: " + deviceId);
+        }
+        smart.setStatus("inactive");
+        smartphoneRepository.save(smart);
+        List<Anomaly> anomalies = anomalyRepository.findAllByDeviceId(deviceId);
+        if (anomalies != null) {
+            for (Anomaly anomaly : anomalies) {
+                anomaly.setStatus(true);
+                anomalyRepository.save(anomaly);
+            }
         }
     }
 

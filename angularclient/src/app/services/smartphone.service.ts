@@ -46,5 +46,13 @@ removeSmartphone(rcuId: string, smartphoneId: number) {
   return this.http.post(`${this.baseUrl}/remove/smartphone`, { rcuId, smartphoneId });
 }
 
+blockSmartphone(deviceId: string) {
+  return this.http.post(`${this.baseUrl}/block/smartphone`, { deviceId });
+}
+
+unblockSmartphone(deviceId: string) {
+  return this.http.post(`${this.baseUrl}/unblock/smartphone`, { deviceId });
+}
+
 
   }
