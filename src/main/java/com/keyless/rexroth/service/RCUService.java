@@ -8,6 +8,7 @@ import com.keyless.rexroth.repository.AnomalyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -32,15 +33,7 @@ public class RCUService {
     private AnomalyRepository anomalyRepository;
 
     // Jede RCU (jede Maschine) erhält ihren eigenen SSE-Stream
-    private final Map<String, Sinks.Many<String>> sinkMap = new ConcurrentHashMap<>();
-
-    // Sink holen oder neu erstellen
-    private Sinks.Many<String> getSink(String rcuId) {
-        return sinkMap.computeIfAbsent(
-                rcuId,
-                id -> Sinks.many().multicast().onBackpressureBuffer()
-        );
-    }
+    private final Map<String, Sinks.Many<String>> activeSinkMap = new ConcurrentHashMap<>();
 
     public RCU registerRcu(String rcuId, String name, String location) {
         if (rcuRepository.findByRcuId(rcuId) != null) {
@@ -176,24 +169,39 @@ public class RCUService {
     }
 
     public Flux<String> streamEvents(String rcuId) {
-        return getSink(rcuId)
-                .asFlux()
-                .map(event -> event + "\n\n");
+        if (activeSinkMap.get(rcuId) != null) {
+            activeSinkMap.remove(rcuId);
+        }
+        Sinks.Many<String> sink = Sinks.many().unicast().onBackpressureBuffer();
+        activeSinkMap.put(rcuId, sink);
+
+        Flux<String> heartbeat = Flux.interval(Duration.ofSeconds(10))
+                .map(t -> "HEARTBEAT");
+
+        // Evento inicial READY pero con DELAY de 100–200 ms
+        Flux<String> readyEvent = Flux.just("READY")
+                .delayElements(Duration.ofMillis(400));
+
+        return Flux.merge(
+                        readyEvent,
+                        sink.asFlux(),
+                        heartbeat
+                )
+                .map(event -> "data:" + event + "\n\n");
     }
 
     // Wird aufgerufen, wenn von der App aus LOCK ausgeführt werden soll
     public void sendLockEvent(String rcuId) {
-        getSink(rcuId).tryEmitNext("LOCK");
+        Sinks.Many<String> sink = activeSinkMap.get(rcuId);
+        if (sink != null) {
+            sink.tryEmitNext("LOCK");
+        }
         RCU rcu = rcuRepository.findByRcuId(rcuId);
         if (rcu != null) {
             rcu.setStatus("inactive");
             rcuRepository.save(rcu);
         }
-    }
-
-    // Für weitere Events
-    public void sendEvent(String rcuId, String event) {
-        getSink(rcuId).tryEmitNext(event);
+        activeSinkMap.remove(rcuId);
     }
 
 
