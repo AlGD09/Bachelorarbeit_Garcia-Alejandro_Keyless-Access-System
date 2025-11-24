@@ -316,8 +316,9 @@ export class EventComponent implements OnInit {
   private colorByResult(result: string): string {
     switch (result) {
       case 'Fehler': return 'orange';
-      case 'Freigegeben': return 'blue';
-      case 'Entsperrt': return 'green';
+      case 'Zugang autorisiert': return 'blue';
+      case 'Entriegelt': return 'green';
+      case 'Verriegelt': return 'red';
       default: return 'gray';
     }
   }
@@ -325,8 +326,9 @@ export class EventComponent implements OnInit {
   private xByResult(result: string): number {
     switch (result) {
       case 'Fehler': return 150;
-      case 'Freigegeben': return 350;
-      case 'Entsperrt': return 550;
+      case 'Zugang autorisiert': return 350;
+      case 'Entriegelt': return 550;
+      case 'Verriegelt': return 550;
       default: return 400;
     }
   }

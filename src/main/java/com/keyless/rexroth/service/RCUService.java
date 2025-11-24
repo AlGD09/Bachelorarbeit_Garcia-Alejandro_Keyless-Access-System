@@ -13,6 +13,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.context.request.async.DeferredResult;
 import reactor.core.publisher.Sinks;
 import reactor.core.publisher.Flux;
 
@@ -32,8 +36,12 @@ public class RCUService {
     @Autowired
     private AnomalyRepository anomalyRepository;
 
+    private static final long TIMEOUT_MILLIS = 10_000L;  // Timeout zum Antworten auf App Verriegelungsbefehl
+
     // Jede RCU (jede Maschine) erhält ihren eigenen SSE-Stream
     private final Map<String, Sinks.Many<String>> activeSinkMap = new ConcurrentHashMap<>();
+
+    private final ConcurrentMap<String, DeferredResult<ResponseEntity<Map<String, Object>>>> operationResults = new ConcurrentHashMap<>();
 
     public RCU registerRcu(String rcuId, String name, String location) {
         if (rcuRepository.findByRcuId(rcuId) != null) {
@@ -91,9 +99,13 @@ public class RCUService {
         event.setDeviceId(deviceId);
         event.setResult(result);
         event.setEventTime(java.time.LocalDateTime.now());
-        if (result.equals("Entsperrt")) {
+        if (result.equals("Entriegelt")) {
             rcu.setStatus("active");
             rcuRepository.save(rcu);
+        }
+        if (result.equals("Verriegelt")) {
+            rcu.setStatus("inactive");
+            confirmLock(rcuId);
         }
 
         eventRepository.save(event);
@@ -202,6 +214,39 @@ public class RCUService {
             rcuRepository.save(rcu);
         }
         activeSinkMap.remove(rcuId);
+    }
+
+    public DeferredResult<ResponseEntity<Map<String, Object>>> createOperation(String rcuId) {
+        DeferredResult<ResponseEntity<Map<String, Object>>> deferredResult = new DeferredResult<>(TIMEOUT_MILLIS);
+
+        operationResults.put(rcuId, deferredResult);
+
+        deferredResult.onTimeout(() -> {
+            Map<String, Object> body = Map.of(
+                    "rcuId", rcuId,
+                    "status", "timeout"
+            );
+            deferredResult.setResult(ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(body));
+            operationResults.remove(rcuId);
+        });
+
+        deferredResult.onCompletion(() -> operationResults.remove(rcuId));
+
+        return deferredResult;
+    }
+
+    public void confirmLock(String rcuId) {
+        DeferredResult<ResponseEntity<Map<String, Object>>> deferredResult = operationResults.get(rcuId);
+        if (deferredResult == null) {
+            return;
+        }
+
+        Map<String, Object> body = Map.of(
+                "rcuId", rcuId,
+                "status", "accepted"
+        );
+
+        deferredResult.setResult(ResponseEntity.accepted().body(body));
     }
 
 

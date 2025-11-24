@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Flux;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.Map;
 import java.util.List;
@@ -117,8 +118,12 @@ public class RCUController {
     }
 
     @PostMapping("/lock/{rcuId}")
-    public void lock(@PathVariable String rcuId) {
+    public DeferredResult<ResponseEntity<Map<String, Object>>> lock(@PathVariable String rcuId) {
+        DeferredResult<ResponseEntity<Map<String, Object>>> deferredResult = rcuService.createOperation(rcuId);
+
         rcuService.sendLockEvent(rcuId);
+
+        return deferredResult;
     }
 
 }
