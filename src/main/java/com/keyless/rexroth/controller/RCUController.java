@@ -122,6 +122,11 @@ public class RCUController {
     public DeferredResult<ResponseEntity<Map<String, Object>>> lock(@RequestBody RCULockDTO dto) {
         DeferredResult<ResponseEntity<Map<String, Object>>> deferredResult = rcuService.createOperation(dto.getRcuId(), dto.getDeviceName(), dto.getDeviceId());
 
+        // Wenn Smartphone Id nicht zum letzten Event passt -> status = "deprecated" senden
+        if (deferredResult.hasResult()) {
+            return deferredResult;
+        }
+
         rcuService.sendLockEvent(dto.getRcuId());
 
         return deferredResult;

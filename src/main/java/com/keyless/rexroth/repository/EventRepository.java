@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
     Event findByRcuId(String rcuId);
+    Event findTop1ByRcuIdOrderByEventTimeDesc(String rcuId);
     List<Event> findByRcuIdOrderByEventTimeAsc(String rcuId);
     List<Event> findTop20ByOrderByEventTimeDesc();
     List<Event> findTop10ByRcuIdOrderByEventTimeDesc(String rcuId);

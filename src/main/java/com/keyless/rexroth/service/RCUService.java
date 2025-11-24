@@ -224,6 +224,16 @@ public class RCUService {
     public DeferredResult<ResponseEntity<Map<String, Object>>> createOperation(String rcuId, String deviceName, String deviceId) {
         DeferredResult<ResponseEntity<Map<String, Object>>> deferredResult = new DeferredResult<>(TIMEOUT_MILLIS);
 
+        Event event = eventRepository.findTop1ByRcuIdOrderByEventTimeDesc(rcuId);
+        if (!event.getDeviceId().equals(deviceId)) {
+            Map<String, Object> body = Map.of(
+                    "rcuId", rcuId,
+                    "status", "deprecated"
+            );
+            deferredResult.setResult(ResponseEntity.accepted().body(body));
+            return deferredResult;
+        }
+
         operationResults.put(rcuId, deferredResult);
 
         deferredResult.onTimeout(() -> {
@@ -235,6 +245,8 @@ public class RCUService {
             operationResults.remove(rcuId);
             addNewEvent(rcuId, deviceName, deviceId, "Ungewöhnliche Verriegelung");
         });
+
+
 
         deferredResult.onCompletion(() -> operationResults.remove(rcuId));
 
