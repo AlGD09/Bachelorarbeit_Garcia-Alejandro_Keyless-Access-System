@@ -162,7 +162,7 @@ public class RCUService {
         String result = event.getResult();
         // Fail fAil = failRepository.findByRcuIdAndDeviceName(rcuId, device);
 
-        if (result.equals("Fehler") && penultimateResult.equals("Fehler")) {
+        if (result.equals("Zugang verweigert") && penultimateResult.equals("Zugang verweigert")) {
 
             if (!anomalyRepository.existsByRcuIdAndDeviceIdAndEventTime(rcuId, deviceId, event.getEventTime())) {
                 return createAnomaly(rcuId, deviceName, deviceId, event.getEventTime());
@@ -240,6 +240,8 @@ public class RCUService {
         DeferredResult<ResponseEntity<Map<String, Object>>> deferredResult = new DeferredResult<>(TIMEOUT_MILLIS);
 
         Event event = eventRepository.findTop1ByRcuIdOrderByEventTimeDesc(rcuId);
+
+        // Verhindern altes Smartphone nach Cloud Verlust neue Aktivitäten zu stoppen
         if (!event.getDeviceId().equals(deviceId)) {
             Map<String, Object> body = Map.of(
                     "rcuId", rcuId,
@@ -258,7 +260,9 @@ public class RCUService {
             );
             deferredResult.setResult(ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(body));
             operationResults.remove(rcuId);
-            addNewEvent(rcuId, deviceName, deviceId, "Ungewöhnliche Verriegelung");
+            if (!event.getResult().equals("Zugang verweigert")) {
+                addNewEvent(rcuId, deviceName, deviceId, "Ungewöhnliche Verriegelung");
+            }
         });
 
 
