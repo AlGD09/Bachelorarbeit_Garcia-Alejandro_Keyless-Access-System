@@ -96,8 +96,7 @@ public class RCUService {
 
         // Ungwöhnliche Verriegelung bei App lost Cloud Verbindung + neue Maschine Session danach erkennen
         if (result.equals("Zugang autorisiert")
-                && !lastEvent.getResult().equals("Verriegelt")
-                && !lastEvent.getResult().equals("Ungewöhnliche Verriegelung")) {
+                && lastEvent.getResult().equals("Entriegelt")) {
             Event event = new Event();
             event.setName(rcu.getName());
             event.setRcuId(rcuId);
