@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { RcuService } from '../../../services/rcu.service';
@@ -13,7 +13,7 @@ import Swal from 'sweetalert2';
   ],
   templateUrl: './einheiten-maschinen.component.html'
 })
-export class EinheitenMaschinenComponent {
+export class EinheitenMaschinenComponent implements OnInit {
 
    // RCUs
     rcus: Rcu[] = [];
@@ -27,6 +27,13 @@ export class EinheitenMaschinenComponent {
       private router: Router
     ) {
       this.loadData();
+    }
+
+    // Status jede 3s aktualisieren
+    ngOnInit() {
+      setInterval(() => {
+        this.loadData();
+      }, 3000);
     }
 
     loadData(): void {

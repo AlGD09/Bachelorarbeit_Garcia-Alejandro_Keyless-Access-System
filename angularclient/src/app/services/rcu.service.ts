@@ -62,8 +62,8 @@ deleteAllAnomalies() {
 }
 
 startRemoteMode(rcuId: string) {
-    return this.http.post(`${this.baseUrl}/start/remote/${rcuId}`)
-  }
+  return this.http.post<void>(`${this.baseUrl}/start/remote/${rcuId}`, {});
+}
 
   }
 
