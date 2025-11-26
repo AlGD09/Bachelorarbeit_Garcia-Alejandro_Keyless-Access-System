@@ -39,18 +39,62 @@ export class EinheitenMaschinenComponent implements OnInit {
     loadData(): void {
       this.loading = true;
 
-
       this.rcuService.getAllRcus().subscribe({
         next: (data: Rcu[]) => {
           this.rcus = data;
           this.loading = false;
+
+          // --- LIVE UPDATE IM SWEETALERT POPUP ---
+          const statusEl = document.getElementById("machine-status");
+
+          if (statusEl) {
+            const rcuId = Number(statusEl.getAttribute("data-id"));
+            const updated = data.find(x => x.id === rcuId);
+
+            if (updated) {
+
+              // STATUS aktualisieren
+              statusEl.innerText = (updated.status + "").toUpperCase();
+              statusEl.className =
+                "leading-none pt-20 font-semibold " + this.getStatusColor(updated.status);
+
+              // BUTTON aktualisieren
+              const btnContainer = document.getElementById("remote-btn-container");
+
+              if (btnContainer) {
+
+                if (updated.status === "inactive" || updated.status === "idle") {
+
+                  // Button rendern
+                  btnContainer.innerHTML = `
+                    <button id="StartRemoteMode"
+                      style="outline: none; box-shadow: none;"
+                      class="px-4 py-2 text-[#800080] font-semibold text-lg rounded-lg hover:text-[#4D2D61] transition">
+                      FERNSTEUERUNG STARTEN
+                    </button>
+                  `;
+
+                  // Button Event Listener neu setzen
+                  const btn = document.getElementById("StartRemoteMode");
+                  if (btn) {
+                    btn.addEventListener("click", () => {
+                      this.startRemoteMode(updated.rcuId);
+                    });
+                  }
+
+                } else {
+                  // Button entfernen
+                  btnContainer.innerHTML = "";
+                }
+              }
+            }
+          }
         },
         error: (err: any) => {
           this.errorMsg = err.message || 'Fehler beim Laden der RCUs';
           this.loading = false;
         }
       });
-
     }
 
 
@@ -135,21 +179,27 @@ export class EinheitenMaschinenComponent implements OnInit {
             <div class="h-full flex flex-col justify-start min-w-[160px] pt-3">
               <p class="flex items-left gap-2">
                 <span style="font-size:50px; font-weight: 900;" class="leading-none pt-14">→</span>
-                <span class="leading-none pt-20 font-semibold ${color}">${(r.status + "").toUpperCase()}</span>
+                <span id="machine-status"
+                      data-id="${r.id}"
+                      class="leading-none pt-20 font-semibold ${color}">
+                  ${(r.status + "").toUpperCase()}
+                </span>
               </p>
             </div>
 
           </div>
           <div style="height: 100px;" class="flex items-center justify-center w-full">
 
-            ${ (r.status == "inactive" || r.status == "idle") ? `
-                <button id="StartRemoteMode"
-                  style="outline: none; box-shadow: none;"
-                  class="px-4 py-2 text-[#800080] font-semibold text-lg rounded-lg hover:text-[#4D2D61] transition">
-                  FERNSTEUERUNG STARTEN
-                </button>
-              ` : ''
-            }
+            <div id="remote-btn-container">
+              ${ (r.status == "inactive" || r.status == "idle") ? `
+                  <button id="StartRemoteMode"
+                    style="outline: none; box-shadow: none;"
+                    class="px-4 py-2 text-[#800080] font-semibold text-lg rounded-lg hover:text-[#4D2D61] transition">
+                    FERNSTEUERUNG STARTEN
+                  </button>
+                ` : ''
+              }
+            </div>
 
           </div>
 
