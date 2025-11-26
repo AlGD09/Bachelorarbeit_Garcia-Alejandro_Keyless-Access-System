@@ -323,6 +323,14 @@ public class RCUService {
 
     // Remote Control Methoden
 
+    public void setRcuStatus(String rcuId, String status) {
+        RCU rcu = rcuRepository.findByRcuId(rcuId);
+
+        rcu.setStatus(status);
+        rcuRepository.save(rcu);
+    }
+
+
     public String getRcuStatus(String rcuId) {
         RCU rcu = rcuRepository.findByRcuId(rcuId);
         if (!rcu.getStatus().equals("remote mode requested")) {

@@ -61,6 +61,10 @@ deleteAllAnomalies() {
     return this.http.delete(`${this.baseUrl}/events/delete/anomalies`)
 }
 
+startRemoteMode(rcuId: string) {
+    return this.http.post(`${this.baseUrl}/start/remote/${rcuId}`)
+  }
+
   }
 
 

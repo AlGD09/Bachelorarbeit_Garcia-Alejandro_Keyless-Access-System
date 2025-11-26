@@ -8,6 +8,7 @@ import com.keyless.rexroth.dto.RCULockDTO;
 import com.keyless.rexroth.entity.Anomaly;
 import com.keyless.rexroth.entity.RCU;
 import com.keyless.rexroth.entity.Event;
+import com.keyless.rexroth.repository.RCURepository;
 import com.keyless.rexroth.service.RCUService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,6 +134,14 @@ public class RCUController {
     }
 
     // Endpoints zum Remote Control
+    @PostMapping("/start/remote/{rcuId}")
+    public ResponseEntity<Void> setRcuStatus(@PathVariable String rcuId) {
+        String status = "remote mode requested";
+        rcuService.setRcuStatus(rcuId, status);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/status/{rcuId}")
     public ResponseEntity<?> getRcuStatus(@PathVariable String rcuId) {
         String status = rcuService.getRcuStatus(rcuId);
