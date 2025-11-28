@@ -38,7 +38,7 @@ export class EinheitenMaschinenComponent implements OnInit {
     ngOnInit() {
       setInterval(() => {
         this.loadData();
-      }, 3000);
+      }, 5000);
     }
 
     loadData(): void {
@@ -187,16 +187,23 @@ export class EinheitenMaschinenComponent implements OnInit {
                         <div style="border-bottom: 1px dotted #d1d5db; margin: 5px 0 22px 0; width: 100%; display: block;"></div>
                       </div>
 
-                      <!-- Erste Zeile: Entriegeln / Verriegeln nebeneinander -->
-                      <div class="flex justify-center mb-3">
-                          <button id="RemoteEntriegelung"
-                            style="outline: none; box-shadow: none; position: relative;"
-                            class="px-4 group flex items-center justify-center gap-4 bg-[#E0E0E0]/10 w-42 h-12 rounded-lg text-[#228B22] text-lg transition hover:text-[#006400] hover:bg-[#F2F2F2]">
+                      <div class="px-8 pt-2 space-y-3 text-left w-full">
+                        <label class="block text-sm font-semibold text-[#002B49]">
+                          Entriegelungszeitpunkt:
+                          <input id="ScheduleUnlockTime" type="datetime-local"
+                                 class="mt-1 w-full border border-gray-300 rounded-md px-2 py-1" value="${unlockVal}">
+                        </label>
 
-                            <i class="fa-solid fa-lock-open text-3xl"></i>
-                            <span>Maschine entriegeln</span>
+                        <label class="block text-sm font-semibold text-[#002B49]">
+                          Verriegelungszeitpunkt:
+                          <input id="ScheduleLockTime" type="datetime-local"
+                                 class="mt-1 w-full border border-gray-300 rounded-md px-2 py-1" value="${lockVal}">
+                        </label>
 
-                          </button>
+                        <button id="ScheduleSave"
+                          class="mt-2 px-4 py-2 rounded-lg bg-[#4D004D] text-white font-semibold hover:bg-[#330033]">
+                          Befehle speichern
+                        </button>
                       </div>
 
                       <div class="flex justify-left mt-2">
@@ -365,15 +372,23 @@ export class EinheitenMaschinenComponent implements OnInit {
                       </div>
 
                       <!-- Erste Zeile: Entriegeln / Verriegeln nebeneinander -->
-                      <div class="flex justify-center mb-3">
-                          <button id="RemoteEntriegelung"
-                            style="outline: none; box-shadow: none; position: relative;"
-                            class="px-4 group flex items-center justify-center gap-4 bg-[#E0E0E0]/10 w-42 h-12 rounded-lg text-[#228B22] text-lg transition hover:text-[#006400] hover:bg-[#F2F2F2]">
+                      <div class="px-8 pt-2 space-y-3 text-left w-full">
+                        <label class="block text-sm font-semibold text-[#002B49]">
+                          Entriegelungszeitpunkt:
+                          <input id="ScheduleUnlockTime" type="datetime-local"
+                                 class="mt-1 w-full border border-gray-300 rounded-md px-2 py-1" value="${unlockVal}">
+                        </label>
 
-                            <i class="fa-solid fa-lock-open text-3xl"></i>
-                            <span>Maschine entriegeln</span>
+                        <label class="block text-sm font-semibold text-[#002B49]">
+                          Verriegelungszeitpunkt:
+                          <input id="ScheduleLockTime" type="datetime-local"
+                                 class="mt-1 w-full border border-gray-300 rounded-md px-2 py-1" value="${lockVal}">
+                        </label>
 
-                          </button>
+                        <button id="ScheduleSave"
+                          class="mt-2 px-4 py-2 rounded-lg bg-[#4D004D] text-white font-semibold hover:bg-[#330033]">
+                          Befehle speichern
+                        </button>
                       </div>
 
                       <div class="flex justify-left mt-2">
