@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -48,7 +50,7 @@ public class RCUService {
     private final Map<String, Sinks.Many<String>> activeSinkMap = new ConcurrentHashMap<>();
 
     // Erkennen ob SSE-Verbindung ausserordentlich unterbrochen wurde}
-    private final Map<String, Boolean> exitFlagMap = new ConcurrentHashMap<>();
+    private final Map<String, AtomicBoolean> exitFlagMap = new ConcurrentHashMap<>();
 
     private final ConcurrentMap<String, DeferredResult<ResponseEntity<Map<String, Object>>>> operationResults = new ConcurrentHashMap<>();
 
@@ -271,13 +273,16 @@ public class RCUService {
         if (activeSinkMap.get(rcuId) != null) {
             activeSinkMap.remove(rcuId);
         }
-        if (exitFlagMap.get(rcuId) != null) {
+
+        /*if (exitFlagMap.get(rcuId) != null) {
             exitFlagMap.remove(rcuId);
-        }
+        }*/
 
         Sinks.Many<String> sink = Sinks.many().unicast().onBackpressureBuffer();
         activeSinkMap.put(rcuId, sink);
-        exitFlagMap.put(rcuId, false);
+        // exitFlagMap.put(rcuId, false);
+        AtomicBoolean exitSent = new AtomicBoolean(false);
+        exitFlagMap.put(rcuId, exitSent);
 
         Flux<String> heartbeat = Flux.interval(Duration.ofSeconds(10))
                 .map(t -> "HEARTBEAT");
@@ -293,9 +298,9 @@ public class RCUService {
                 )
                 .map(event -> "data:" + event + "\n\n")
                 .doOnCancel(() -> {
-                    boolean exitSent = exitFlagMap.getOrDefault(rcuId, false);
+                    // boolean exitSent = exitFlagMap.getOrDefault(rcuId, false);
 
-                    if (!exitSent) {
+                    if (!exitSent.get()) {
                         Event event = eventRepository.findTop1ByRcuIdOrderByEventTimeDesc(rcuId);
                         RCU rcu = rcuRepository.findByRcuId(rcuId);
                         if (rcu != null && (rcu.getStatus().equals("Remote - operational") || rcu.getStatus().equals("Remote - idle"))) {
@@ -313,14 +318,20 @@ public class RCUService {
 
                     }
                     deleteScheduleRemote(rcuId);  // Alle programmed remote Befehle entfernen -> SSE soll offen bleiben
-                    exitFlagMap.remove(rcuId);
+                    // Löschen, aber nur, wenn der Map-Eintrag wirklich zu *dieser* Verbindung gehört
+                    exitFlagMap.compute(rcuId, (id, flagInMap) ->
+                            flagInMap == exitSent ? null : flagInMap
+                    );
                 });
     }
 
     // Wird aufgerufen, wenn von der App aus LOCK ausgeführt werden soll
     public void sendLockEvent(String rcuId) {
         Sinks.Many<String> sink = activeSinkMap.get(rcuId);
-        exitFlagMap.put(rcuId, true);
+        AtomicBoolean exitSent = exitFlagMap.get(rcuId);
+        if (exitSent != null) {
+            exitSent.set(true);
+        }
         if (sink != null) {
             sink.tryEmitNext("LOCK");
         }
@@ -461,7 +472,10 @@ public class RCUService {
 
     public void sendNotfallLockEvent(String rcuId) {
         Sinks.Many<String> sink = activeSinkMap.get(rcuId);
-        exitFlagMap.put(rcuId, true);
+        AtomicBoolean exitSent = exitFlagMap.get(rcuId);
+        if (exitSent != null) {
+            exitSent.set(true);
+        }
         // addNewEvent(rcuId, "Remote Control", "1", "Notfallverriegelung");
         if (sink != null) {
             sink.tryEmitNext("LOCK");
@@ -478,7 +492,10 @@ public class RCUService {
 
     public void sendRemoteExitEvent(String rcuId) {
         Sinks.Many<String> sink = activeSinkMap.get(rcuId);
-        exitFlagMap.put(rcuId, true);
+        AtomicBoolean exitSent = exitFlagMap.get(rcuId);
+        if (exitSent != null) {
+            exitSent.set(true);
+        }
         if (sink != null) {
             sink.tryEmitNext("EXIT");
         }
