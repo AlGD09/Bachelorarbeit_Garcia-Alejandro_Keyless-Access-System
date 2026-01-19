@@ -24,7 +24,7 @@ def start_remote_mode():
 
     while True: 
         try: 
-            with requests.get(sse_url, headers=headers, stream=True, timeout=(5, 15)) as resp:
+            with requests.get(sse_url, headers=headers, stream=True, timeout=(5, 5)) as resp:
                 for raw_line in resp.iter_lines(decode_unicode=True):
 
                     # LOG COMPLETO
