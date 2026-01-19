@@ -288,7 +288,7 @@ public class RCUService {
         AtomicBoolean exitSent = new AtomicBoolean(false);
         exitFlagMap.put(rcuId, exitSent);
 
-        Flux<String> heartbeat = Flux.interval(Duration.ofSeconds(10))
+        Flux<String> heartbeat = Flux.interval(Duration.ofSeconds(3))
                 .map(t -> "HEARTBEAT");
 
         // Evento inicial READY pero con DELAY de 100–200 ms
